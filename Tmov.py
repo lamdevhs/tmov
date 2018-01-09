@@ -316,6 +316,11 @@ class Word(Token):
   #   left = block(view, region, backward).a
   #   leftBorder = borderingRegion(view, left, backward)
   #   return Word.next(view, edit, leftBorder, onward, pongIfFails = True)
+  @staticmethod
+  def convert(view, region):
+    p = block(view, region, backward)[0].a
+    r = charRegion(p - 1)
+    return Word.next(view, None, region, onward)
 
   @staticmethod
   def next(view, edit, region, direction, pongIfFails = True):
