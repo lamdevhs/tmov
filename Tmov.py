@@ -107,12 +107,16 @@ class Token():
     if str == "switch":
       return cls.switch
 
+    if str == "exitEditMode":
+      return cls.exitEditMode
+
 
 
   @classmethod
   def call(cls, argsStr, view, edit):
     handler = cls.foreach
     toEditMode = False
+    toMoveMode = False
     where = None
 
     args = argsStr.split(" ")
@@ -130,6 +134,9 @@ class Token():
     else:
       mstr = action
     method = Token.fromStr(cls, mstr)
+    
+    if mstr == "exitEditMode":
+      toMoveMode = True
 
     if mstr in ["change", "new", "add"]:
       toEditMode = True
@@ -151,6 +158,8 @@ class Token():
 
     if toEditMode:
       cls.toEditMode(view, edit)
+    if toMoveMode:
+      cls.toMoveMode(view, edit)
   
   # @staticmethod
   # def do_once(cls, boundMeth, view, edit, direction):
@@ -171,6 +180,14 @@ class Token():
   @classmethod
   def toEditMode(cls, view, edit):
     setEditMode(view)
+
+  @classmethod
+  def toMoveMode(cls, view, edit):
+    setMoveMode(view)
+
+  @classmethod
+  def exitEditMode(cls, view, edit, region, direction):
+    return cls.token(view, region.b - 1)
 
   @classmethod
   def switch(cls, view, edit, region, direction):
@@ -214,24 +231,46 @@ class Token():
     if next == None:
       return region # do nothing: nothing to fuse with in that direction
     bwn = betweenRegions(region, next)
+      # ^ ??? maybe extend it left and right, in case of trailing space on line
+    if len(next) == 0 or len(region) == 0: # if empty line here or there
+      subsep = ""
     view.replace(edit, bwn, subsep)
-    return cls.convert(view, region)
+    offset = len(bwn) - len(subsep)
+    if direction == onward:
+      #r = region
+      n = shift(next, -offset)
+    else:
+      #r = shift(region, -offset)
+      n = next
+    return cls.convert(view, charRegion(n.a))
+
+
+    extendedNext = block(view, n, rev(direction))[0]
+      # ^ add the word we were on if the fusion made a valid token
+    return extendedNext
 
   @classmethod
   def delete(cls, view, edit, region, direction):
-    todel = cls.spacesAround(view, region) # clipped if word or line (since line musn eat the next's indent)
+    todel = cls.toDelete(view, region) # clipped if word or line (since line musn eat the next's indent)
     replacement = cls.basicSeparator
     if (cls.isFirst(view, region)
         or cls.isLast(view, region)
         or len(todel) == len(region)):
       replacement = ""
     view.replace(edit, todel, replacement)
+    return cls.convert(view, region)
+    # next -> replace len -> shift
   
   @classmethod
   def pongNext(cls, view, edit, direction):
     newDirection = rev(direction)
     r = etherBound(view, newDirection)
     return Word.next(view, edit, r, newDirection, pongIfFails = False)
+
+  @classmethod
+  def convert(cls, view, region):
+    region = normalized(region)
+    return cls.token(view, region.a)
   # copy
   # paste = paste + "forget"
   # cut = copy + delete
@@ -242,7 +281,7 @@ class Token():
 #   basicSeparator
 
 # methods:
-#   spacesAround
+#   toDelete
 #   convert
 #   toPaste
 #   next
@@ -253,14 +292,15 @@ class Line(Token):
   name = "Line"
 
   subseparator = " "
+  basicSeparator = "\n"
   
 
-  @staticmethod
-  def convert(view, region):
-    return Line.smallLine(view, region.a)
+  # @staticmethod
+  # def convert(view, region):
+  #   return Line.token(view, region.a)
 
   @staticmethod
-  def smallLine(view, point):
+  def token(view, point):
     l = Line.line(view, point)
     indent = Line.indent(view, l)
     return mkRegion(indent.b, l.b)
@@ -288,11 +328,11 @@ class Line(Token):
     
     if nextExists:
       p = view.text_point(ix + direction, 0)
-      return Line.smallLine(view, p)
+      return Line.token(view, p)
 
     if not pongIfFails:
       return None
-    return Line.smallLine(view, p)
+    return Line.token(view, p)
 
   @staticmethod
   def separator(view, region, direction):
@@ -304,7 +344,20 @@ class Line(Token):
     # else:
     #   return indentStr + newline
 
+  @staticmethod
+  def toDelete(view, line):
+    l = view.full_line(line)
+    l.a -= 1
+    return l
 
+  @staticmethod
+  def isFirst(view, line):
+    return view.rowcol(line.a)[0] == 0
+
+  @staticmethod
+  def isLast(view, line):
+    eof = view.rowcol(view.size())[0]
+    return view.rowcol(line.a)[0] == eof
 
 
 class Word(Token):
@@ -317,10 +370,14 @@ class Word(Token):
   #   leftBorder = borderingRegion(view, left, backward)
   #   return Word.next(view, edit, leftBorder, onward, pongIfFails = True)
   @staticmethod
-  def convert(view, region):
-    p = block(view, region, backward)[0].a
-    r = charRegion(p - 1)
-    return Word.next(view, None, region, onward)
+  def token(view, point):
+    r = charRegion(point)
+    return blockAround(view, r)[0]
+    #
+    # p = block(view, r, backward)[0].a
+    # r = charRegion(p - 1)
+    # return r
+    # return Word.next(view, None, region, onward)
 
   @staticmethod
   def next(view, edit, region, direction, pongIfFails = True):
@@ -376,6 +433,10 @@ class Char(Token):
   name = "Char"
 
   subseparator = ""
+
+  @staticmethod
+  def token(view, point):
+    return charRegion(point)
 
   @staticmethod
   def next(view, edit, region, direction, pongIfFails = True):

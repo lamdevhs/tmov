@@ -188,5 +188,6 @@ def etherBound(view, direction):
 def zeroRegion(point):
   return sublime.Region(point, point)
 
-
+def shift(region, offset):
+  return mkRegion(region.a + offset, region.b + offset)
 newline = '\n'

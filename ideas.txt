@@ -1,0 +1,187 @@
+* modes:
+  ** line
+  ** word
+  ** Word
+  ** section
+  ** character
+  ** sentence (can replace the mode line automatically when in supermode ('usage') "plain text" vs "coding")
+* actions:
+  ** delete
+  ** delete previous token (and keep cursor on current token)
+  ** yank - append to yank register or replace (by default, unless pasting has occured, it could add to it: indeed usually if you yank you paste way before yanking again)
+  ** paste n- when pasting: keep the area added selected
+     paste instead, after, before, to end, to start -> i think it'd be better
+     to just paste in insert mode...
+  ** change
+  ** cut
+  ** truncate to start/end of word/line/paragraph (which one: is a parameter of truncate)
+     eg if 'e' means truncate to end, then 'el' could mean truncate to end of line from where we stand (if we're in word mode, it'll take care of spaces for us), etc
+* insertion:
+  ** before
+  ** after
+  ** start
+  ** end
+  ** middle
+* move:
+  ** next
+  ** previous
+  ** start/end/middle (change of mode to lower)
+  ** start/end/middle wrt superior level (no change of mode)
+     eg: in word mode, this start would send the cursor to the first word
+     in the line. in section mode, to the first section of the doc, etc
+* special:
+  ** undo/redo
+  ** fuse lines/words/sections
+  ** searches with 2/3 characters: change of mode to character? or maybe not
+  ** search word/character/line(s) currently highlighted
+  ** registers (and tab numbers, etc): numbers 0-9 plus some symbols maybe
+  ** group mode: equivalent to selection mode, allows adding characters along the movement)
+
+* modes:
+  operating mode
+  group mode
+  block (group) mode
+  editor (inserting) mode
+
+* ideas:
+  control + motion -> redo the previous action to the next location
+  eg: d -- delete word, then right-right-right to delete words to the right
+  search with prefix, eg search some string that start with "$"
+    with a system of registers saving the various prefixes
+
+* line mode must start and end to start and end of first and last word (not bothering the indentation)
+  obviously, deleting a line deletes indentation too, but not editing it (very much list word deletion/ editing)
+
+* modes are changed either by going forward or backwards (thus nbModes*2 keys) or by changing mode 'up/down' (two keys only)
+aka, if in char mode you want to go to section mode without moving from where you are, you press 3 times the 'up the mode' key (char -> word -> line -> section)
+ofc you could also just press section-back then section-forward
+esp, if you're at the top of the fime, sectino-back may either leave you on the same spot, one modal level up, or, it may wrap to the end of file... but probably not
+
+
+* word vs WORD:
+  mode WORD by default
+  temporary change to word just for one operation: eg you're on a WORD, you hit the 'word mode' key, then the "modify token" key (basically puts you in a group (vi-selection) mode)
+OR...
+  we could define a default word mode that isn't necessarily wrapped in space, but depends on the next/previous word's type (alphanum or not)
+  ofc, when creating a new word, spaces could be insterted automatically (esp to prevent the need to add a space when adding a word after a sentence... unless we make a sentence mode?)
+
+* one key to separate the current token into its subtokens, using sublime's multicursor (can be done recursively)
+eg: get to mode section, then use it, then use "edit to start" -> a cursor on each start of line
+
+* to avoid confusion: word/line/char won't be modes, but grasps, or maybe spans, or area (of action)
+
+
+* types of mode:
+  . key mode: operation/edition (op/ed)
+  . token mode: line, char, etc
+  . usage mode: text vs code
+
+* "token motion"
+
+next line: set_token_mode__line; prev_token
+add next: to_edit_mode(new_after)
+change: to_edit_mode(instead)
+
+* !!!!!! one key to "stick" current mode: any movement in other modes still doesn't change the current mode (barring use of tokmod change or unsticking)
+or possibly use of ctrl (or alt?) + mov
+
+move: x3 (fwd, bwd)
+  word
+  line
+  char
+  section
+edit
+  replace
+  append end
+  append start
+  add after
+  add before
+...
+  select cursor-to-end
+  select cursor-to-start
+basic operations
+  delete
+  cut (could be just copy followed by deleting)
+  copy
+  paste (the result will depend on the mode we're in: adding lines/words/char)
+searches
+  forward 2char
+  backward 2char
+  fwd arbitrary
+  bwd arbitrary
+
+
+---------------------------------------------
+a - add after char
+A - add after line
+z - stuff
+Z - stuff
+e - word end next
+E - word end prev
+r - replace letter
+R - overwrite
+t T - find char
+y Y - yank /line
+u U - undo
+i I - add before char/line
+o O - new after/before line
+p P - paste-add after/before char
+q Q - macro, ?
+s S - change char/line
+d D - delete /line
+f - find char
+g - line jump / doc start/end
+h,j,k,l - character/line move
+HL - visible area start/end
+J - fuse forward lines
+K - ?
+w W - wordWORD next/prev
+x X - delete next/prev character
+c C - change /line
+v V - visual selection /line
+b B - wordWORD prev
+n N - search next/prev
+
+--------- study: problems of multi cursors when editing:
+the issue arises when we have to relocate, possibly to a location
+that won't exist once all the cursors will have been handled
+probs:
+  movements: none
+  add: none
+  delete: yes
+    we wudn have trouble with deleting if we allowed the cursor to go backwards instead of forward: backward will never risk falling onto sth that will be erased,
+    since the selections are kept in proper order...
+    what if we first go backward, then go forward by one?
+    note: we must handle the case of erasing the first token of the doc
+  paste: yes, possibly, esp if we say paste whitespace in wordmode:
+    then we have to find a new location and it risks failing
+    tho, do we allow pasting whitespace in wordmode?
+    if not, which is more logical, then we'll always manage to paste at least one token
+    of the proper "size" (otherwise, we just don't relocate), in which case we merely
+    define the first of those pasted tokens as the one we focus on after pasting
+  yank: no
+
+
+default automatic mode changes:
+when doc.size == 0: get into edit mode at the beginning
+otherwise: if section/word mode fails, goto line mode
+
+don't forget all the keys i can use in command mode: like enter, backspace, etc
+enter could be perfect to add a new token after
+space could be used to change... and to move up/down one span of screen when in RO mode...
+  or better: could be used for adding a new token, as if we typed a space right after a word...
+
+
+idea for pasting:
+ - we keep a list of things to paste
+ - two modes of pasting: either the first in, or all of it
+ - permits eg to copy a char, two words, paste the char as new line and then the two words as yet another line
+ - permits easy swapping: copy A, goto B, copy B, partial paste A, goto A, (partial) paste
+
+ - pasting onto a line, when there're several lines in the memory, replaces the current line with the first of the memory,
+   but all the other lines are added as new lines
+
+
+fusing chars makes no sense, so that key can be used in charmode for sth else
+ofc that won't do  
+but still...

@@ -1,98 +1,112 @@
 [
-    // -------- MOVEMENT
-    { "keys": ["j"], "command": "tmov",
-      "args": {"args": "next onward", "new_mode": "Line"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  // -------- MOVEMENT
+  { "keys": ["j"], "command": "tmov",
+    "args": {"args": "next onward", "new_mode": "Line"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    { "keys": ["k"], "command": "tmov",
-      "args": {"args": "next backward", "new_mode": "Line"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  { "keys": ["k"], "command": "tmov",
+    "args": {"args": "next backward", "new_mode": "Line"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    { "keys": ["h"], "command": "tmov",
-      "args": {"args": "next backward", "new_mode": "Word"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  { "keys": ["h"], "command": "tmov",
+    "args": {"args": "next backward", "new_mode": "Word"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    { "keys": ["l"], "command": "tmov",
-      "args": {"args": "next onward", "new_mode": "Word"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  { "keys": ["l"], "command": "tmov",
+    "args": {"args": "next onward", "new_mode": "Word"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    { "keys": ["H"], "command": "tmov",
-      "args": {"args": "next backward", "new_mode": "Char"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  { "keys": ["H"], "command": "tmov",
+    "args": {"args": "next backward", "new_mode": "Char"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    { "keys": ["L"], "command": "tmov",
-      "args": {"args": "next onward", "new_mode": "Char"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  { "keys": ["L"], "command": "tmov",
+    "args": {"args": "next onward", "new_mode": "Char"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    // ---------- EDIT
-    { "keys": ["n"], "command": "tmov",
-      "args": {"args": "new onward"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
-
-
-    { "keys": ["b"], "command": "tmov",
-      "args": {"args": "new backward"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
-
-    { "keys": ["a"], "command": "tmov",
-      "args": {"args": "add onward"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  // ---------- EDIT
+  { "keys": [" "], "command": "tmov",
+    "args": {"args": "new onward"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
 
-    { "keys": ["i"], "command": "tmov",
-      "args": {"args": "add backward"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  { "keys": ["b"], "command": "tmov",
+    "args": {"args": "new backward"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    // EFFECTS
-
-    { "keys": ["f"], "command": "tmov",
-      "args": {"args": "fuse onward"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
-
-    { "keys": ["F"], "command": "tmov",
-      "args": {"args": "fuse backward"},
-      "context": [{"key": "setting.tmov_isMoveMode"}]
-    },
+  { "keys": ["a"], "command": "tmov",
+    "args": {"args": "add onward"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
 
+  { "keys": ["i"], "command": "tmov",
+    "args": {"args": "add backward"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    // -------------- DEV
-    { "keys": ["f5"], "command": "toggle_tmov"
-    }
+  // EFFECTS
 
-    // { "keys": ["h"], "command": "prev_word", 
-    //   "context": [{"key": "setting.command_mode"}]
-    // },
+  { "keys": ["f"], "command": "tmov",
+    "args": {"args": "fuse onward"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    // { "keys": ["j"], "command": "next_line", 
-    //   "context": [{"key": "setting.command_mode"}]
-    // },
+  { "keys": ["F"], "command": "tmov",
+    "args": {"args": "fuse backward"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    // { "keys": ["k"], "command": "prev_line", 
-    //   "context": [{"key": "setting.command_mode"}]
-    // },
+  { "keys": ["d"], "command": "tmov",
+    "args": {"args": "delete"},
+    "context": [{"key": "setting.tmov_isMoveMode"}]
+  },
 
-    // { "keys": [" "], "command": "erase_line",
-    //   "context": [{"key": "setting.command_mode"}]
-    // },
-    // { "keys": ["~"], "command": "erase_word",
-    //   "context": [{"key": "setting.command_mode"}]
-    // }, 
-    // { "keys": ["<"], "command": "linearize",
-    //   "context": [{"key": "setting.command_mode"}]
-    // }, 
-    // { "keys": ["!"], "command": "foo",
-    //   "context": [{"key": "setting.command_mode"}]
-    // }
+
+
+  // -------------- DEV
+  { "keys": ["f5"], "command": "toggle_tmov"
+  },
+
+  { "keys": ["escape"], "command": "tmov",
+    "args": {"args": "exitEditMode"},
+    "context":
+    [
+      { "key": "setting.tmov_isMoveMode", "operand": false },
+      { "key": "setting.is_widget", "operand": false }
+    ]
+  }
+
+  // { "keys": ["h"], "command": "prev_word", 
+  //   "context": [{"key": "setting.command_mode"}]
+  // },
+
+  // { "keys": ["j"], "command": "next_line", 
+  //   "context": [{"key": "setting.command_mode"}]
+  // },
+
+  // { "keys": ["k"], "command": "prev_line", 
+  //   "context": [{"key": "setting.command_mode"}]
+  // },
+
+  // { "keys": [" "], "command": "erase_line",
+  //   "context": [{"key": "setting.command_mode"}]
+  // },
+  // { "keys": ["~"], "command": "erase_word",
+  //   "context": [{"key": "setting.command_mode"}]
+  // }, 
+  // { "keys": ["<"], "command": "linearize",
+  //   "context": [{"key": "setting.command_mode"}]
+  // }, 
+  // { "keys": ["!"], "command": "foo",
+  //   "context": [{"key": "setting.command_mode"}]
+  // }
 ]
